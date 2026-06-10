@@ -53,7 +53,7 @@ Apuntes completos del taller de testing impartido por **Itzel Rodríguez López*
 
 La página está disponible en:
 ```
-https://victor-de-jesus967.github.io/Taller-Testing-HITS/
+https://victor-de-jesus967.github.io/TestingTaller/
 ```
 
 ## 🛠️ Herramientas mencionadas
