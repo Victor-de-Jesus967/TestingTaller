@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Taller de Testing - HITS | Apuntes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e2e8f0; }
+        .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; }
+        .glass-light { background: rgba(255,255,255,0.025); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.04); border-radius: 0.75rem; }
+        .text-gradient { background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .bg-grid { background-image: radial-gradient(rgba(96,165,250,0.08) 1px, transparent 1px); background-size: 30px 30px; }
+        nav a { transition: all 0.2s; }
+        nav a:hover { color: #60a5fa; }
+        section { scroll-margin-top: 5rem; }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.2); }
+        .tag { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 500; }
+        .tag-blue { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.2); }
+        .tag-purple { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
+        .tag-pink { background: rgba(244,114,182,0.12); color: #f472b6; border: 1px solid rgba(244,114,182,0.2); }
+        .tag-green { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+        .tag-amber { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+        .severity { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 0.375rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .sev-critical { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+        .sev-high { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+        .sev-medium { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
+        .sev-low { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.25); }
+        .step-number { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 999px; background: rgba(96,165,250,0.12); color: #60a5fa; font-weight: 700; font-size: 0.875rem; flex-shrink: 0; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        @media (max-width: 768px) { .comparison-grid { grid-template-columns: 1fr; } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: rgba(96,165,250,0.2); border-radius: 3px; }
+        code { background: rgba(255,255,255,0.06); padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.875rem; color: #a5b4fc; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(96,165,250,0.08); padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        td { padding: 0.75rem 1rem; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: #cbd5e1; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .video-card { position: relative; overflow: hidden; }
+        .video-card:hover .play-icon { transform: scale(1.1); background: rgba(96,165,250,0.3); }
+        .play-icon { transition: all 0.3s; width: 60px; height: 60px; border-radius: 50%; background: rgba(96,165,250,0.2); display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="bg-grid">
+
+<nav class="fixed top-0 left-0 right-0 z-50 glass border-t-0 border-l-0 border-r-0 rounded-none" style="backdrop-filter: blur(16px);">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <span class="text-lg font-bold text-gradient">Testing HITS</span>
+        <div class="hidden md:flex gap-6 text-sm text-slate-400">
+            <a href="#fundamentos">Fundamentos</a>
+            <a href="#principios">Principios</a>
+            <a href="#niveles">Niveles</a>
+            <a href="#proceso">Proceso</a>
+            <a href="#casos">Casos de Prueba</a>
+            <a href="#defectos">Defectos</a>
+            <a href="#ciclo-vida">Ciclo de Vida</a>
+            <a href="#herramientas">Herramientas</a>
+            <a href="#etica">Ética</a>
+            <a href="#videos" class="text-blue-400">Videos</a>
+        </div>
+    </div>
+</nav>
+
+<header class="pt-32 pb-20 px-6 text-center relative overflow-hidden">
+    <div class="absolute inset-0 opacity-30" style="background: radial-gradient(ellipse at 50% 0%, rgba(96,165,250,0.15) 0%, transparent 60%);"></div>
+    <div class="max-w-3xl mx-auto relative">
+        <span class="tag tag-blue mb-6 inline-block">Taller HITS &middot; 2026</span>
+        <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+            <span class="text-gradient">Testing de Software</span><br/>
+            <span class="text-white/90">Apuntes del Taller</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto">
+            Impartido por <strong class="text-white">Itel Rodr&iacute;guez L&oacute;pez</strong>, con m&aacute;s de 10 a&ntilde;os de experiencia en el campo del testing.
+            Fundamentos, ciclo de vida, dise&ntilde;o de casos, gesti&oacute;n de defectos y herramientas profesionales.
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+            <span class="tag tag-purple">6 videos</span>
+            <span class="tag tag-green">7 principios ISTQB</span>
+            <span class="tag tag-pink">Azure DevOps</span>
+            <span class="tag tag-amber">Gesti&oacute;n de defectos</span>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 pb-20 space-y-24">
+
+    <!-- FUNDAMENTOS -->
+    <section id="fundamentos" class="animate-in">
+        <div class="text-center mb-12">
+            <span class="tag tag-blue mb-3">Video 1</span>
+            <h2 class="text-3xl md:text-4xl font-bold">Fundamentos del Testing</h2>
+            <p class="text-slate-400 mt-3 max-w-xl mx-auto">Conceptos esenciales para entender el aseguramiento de calidad en software.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-5 mb-10">
+            <div class="glass p-6 card-hover">
+                <div class="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                    <span class="text-red-400 text-xl">⚠️</span>
+                </div>
+                <h3 class="font-semibold text-lg mb-2">Error</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Acci&oacute;n humana que produce un resultado incorrecto. Puede ser por distracci&oacute;n, interpretaci&oacute;n equivocada de requisitos, fatiga o falta de comunicaci&oacute;n en el equipo.</p>
+            </div>
+            <div class="glass p-6 card-hover">
+                <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
+                    <span class="text-amber-400 text-xl">🐛</span>
+                </div>
+                <h3 class="font-semibold text-lg mb-2">Defecto</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Imperfecci&oacute;n en el producto de software. Se introduce en el c&oacute;digo, documento o dise&ntilde;o. Si no se corrige a tiempo, puede llegar a producci&oacute;n con costos elevados.</p>
+            </div>
+            <div class="glass p-6 card-hover">
+                <div class="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                    <span class="text-red-400 text-xl">💥</span>
+                </div>
+                <h3 class="font-semibold text-lg mb-2">Fallo</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Comportamiento observable e incorrecto del sistema cuando se ejecuta. El usuario final lo experimenta directamente: pantallazos, c&aacute;lculos err&oacute;neos, ca&iacute;das del sistema.</p>
+            </div>
+        </div>
+
+        <div class="glass p-6 md:p-8 mb-6">
+            <h3 class="text-xl font-semibold mb-4">¿Por qu&eacute; son importantes las pruebas?</h3>
+            <ul class="grid md:grid-cols-2 gap-3 text-sm text-slate-300">
+                <li class="flex items-start gap-3"><span class="text-blue-400 mt-0.5">→</span> Previenen p&eacute;rdidas econ&oacute;micas y da&ntilde;os a la reputaci&oacute;n empresarial</li>
+                <li class="flex items-start gap-3"><span class="text-blue-400 mt-0.5">→</span> Ahorran costos al detectar errores en etapas tempranas del desarrollo</li>
+                <li class="flex items-start gap-3"><span class="text-blue-400 mt-0.5">→</span> Mejoran la experiencia del usuario final y la satisfacci&oacute;n del cliente</li>
+                <li class="flex items-start gap-3"><span class="text-blue-400 mt-0.5">→</span> Son cr&iacute;ticas en sectores como banca, salud y telecomunicaciones</li>
+                <li class="flex items-start gap-3"><span class="text-blue-400 mt-0.5">→</span> Validar requisitos desde el inicio permite identificar problemas antes de producci&oacute;n</li>
+                <li class="flex items-start gap-3"><span class="text-blue-400 mt-0.5">→</span> El aseguramiento de calidad es <strong>preventivo</strong>: busca evitar defectos antes de que ocurran</li>
+            </ul>
+        </div>
+
+        <div class="glass p-6 md:p-8">
+            <h3 class="text-xl font-semibold mb-4">Tipos de Pruebas</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="glass-light p-4"><h4 class="font-medium text-blue-400 mb-1">Caja Negra</h4><p class="text-xs text-slate-400">Eval&uacute;an la funcionalidad visible sin conocer el c&oacute;digo interno. Se centran en entradas y salidas esperadas.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-purple-400 mb-1">Caja Blanca</h4><p class="text-xs text-slate-400">Eval&uacute;an la estructura interna del c&oacute;digo, verificando caminos l&oacute;gicos y cobertura de sentencias.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-green-400 mb-1">Pruebas Est&aacute;ticas</h4><p class="text-xs text-slate-400">Identifican defectos sin ejecutar el programa. Analizan documentaci&oacute;n, requisitos y c&oacute;digo fuente.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-amber-400 mb-1">Pruebas No Funcionales</h4><p class="text-xs text-slate-400">Eval&uacute;an rendimiento, seguridad, fiabilidad, usabilidad y eficiencia del sistema.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-pink-400 mb-1">Pruebas de Regresi&oacute;n</h4><p class="text-xs text-slate-400">Verifican que cambios recientes no hayan roto funcionalidades existentes.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-cyan-400 mb-1">Pruebas End-to-End</h4><p class="text-xs text-slate-400">Validan flujos completos del sistema desde el inicio hasta el final.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7 PRINCIPIOS -->
+    <section id="principios" class="animate-in delay-1">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold">7 Principios del Testing <span class="text-gradient">(ISTQB)</span></h2>
+            <p class="text-slate-400 mt-3">Fundamentos aceptados internacionalmente que gu&iacute;an toda actividad de pruebas.</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="glass p-5 card-hover"><span class="text-xs font-bold text-blue-400">PRINCIPIO 1</span><h4 class="font-semibold mt-1 mb-2">Las pruebas muestran la presencia de defectos</h4><p class="text-xs text-slate-400">No pueden demostrar que el software est&aacute; libre de errores. Solo revelan que existen defectos.</p></div>
+            <div class="glass p-5 card-hover"><span class="text-xs font-bold text-purple-400">PRINCIPIO 2</span><h4 class="font-semibold mt-1 mb-2">Las pruebas exhaustivas son imposibles</h4><p class="text-xs text-slate-400">Probar todas las combinaciones es inviable. Se requiere an&aacute;lisis de riesgos y priorizaci&oacute;n.</p></div>
+            <div class="glass p-5 card-hover"><span class="text-xs font-bold text-green-400">PRINCIPIO 3</span><h4 class="font-semibold mt-1 mb-2">Pruebas tempranas ahorran tiempo y dinero</h4><p class="text-xs text-slate-400">Detectar defectos en etapas iniciales reduce dr&aacute;sticamente los costos de correcci&oacute;n.</p></div>
+            <div class="glass p-5 card-hover"><span class="text-xs font-bold text-pink-400">PRINCIPIO 4</span><h4 class="font-semibold mt-1 mb-2">Agrupamiento de defectos</h4><p class="text-xs text-slate-400">El 80% de los errores suelen estar en el 20% del sistema (Principio de Pareto).</p></div>
+            <div class="glass p-5 card-hover"><span class="text-xs font-bold text-amber-400">PRINCIPIO 5</span><h4 class="font-semibold mt-1 mb-2">Paradoja del pesticida</h4><p class="text-xs text-slate-400">Repetir las mismas pruebas hace que dejen de encontrar nuevos defectos. Hay que actualizarlas peri&oacute;dicamente.</p></div>
+            <div class="glass p-5 card-hover"><span class="text-xs font-bold text-cyan-400">PRINCIPIO 6</span><h4 class="font-semibold mt-1 mb-2">El testing depende del contexto</h4><p class="text-xs text-slate-400">No se prueba igual un sistema bancario que una red social. El enfoque var&iacute;a seg&uacute;n el dominio y riesgos.</p></div>
+            <div class="glass p-5 card-hover md:col-span-2 lg:col-span-3 max-w-2xl mx-auto w-full"><span class="text-xs font-bold text-red-400">PRINCIPIO 7</span><h4 class="font-semibold mt-1 mb-2">La ausencia de errores es una falacia</h4><p class="text-xs text-slate-400">Encontrar defectos no sirve si el sistema no satisface las necesidades del usuario. Un software sin errores pero in&uacute;til sigue siendo un fracaso.</p></div>
+        </div>
+    </section>
+
+    <!-- NIVELES DE PRUEBA -->
+    <section id="niveles" class="animate-in delay-2">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold">Niveles de Prueba</h2>
+            <p class="text-slate-400 mt-3">Cada nivel aborda una capa distinta del software, desde lo m&aacute;s granular hasta el sistema completo.</p>
+        </div>
+        <div class="relative">
+            <div class="hidden md:block absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/30 via-purple-500/30 to-pink-500/30"></div>
+            <div class="space-y-6">
+                <div class="glass p-5 md:pl-16 relative">
+                    <div class="hidden md:flex absolute left-4 top-5 w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 items-center justify-center text-blue-400 font-bold text-sm">1</div>
+                    <span class="tag tag-blue mb-2">Nivel 1</span>
+                    <h3 class="font-semibold text-lg">Pruebas Unitarias</h3>
+                    <p class="text-sm text-slate-400">Verifican componentes individuales del sistema (funciones, m&eacute;todos, clases). Las realizan los desarrolladores.</p>
+                </div>
+                <div class="glass p-5 md:pl-16 relative">
+                    <div class="hidden md:flex absolute left-4 top-5 w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 items-center justify-center text-purple-400 font-bold text-sm">2</div>
+                    <span class="tag tag-purple mb-2">Nivel 2</span>
+                    <h3 class="font-semibold text-lg">Pruebas de Integraci&oacute;n</h3>
+                    <p class="text-sm text-slate-400">Verifican que los m&oacute;dulos interact&uacute;en correctamente entre s&iacute;. Se prueban las interfaces y la comunicaci&oacute;n entre componentes.</p>
+                </div>
+                <div class="glass p-5 md:pl-16 relative">
+                    <div class="hidden md:flex absolute left-4 top-5 w-8 h-8 rounded-full bg-pink-500/20 border border-pink-500/30 items-center justify-center text-pink-400 font-bold text-sm">3</div>
+                    <span class="tag tag-pink mb-2">Nivel 3</span>
+                    <h3 class="font-semibold text-lg">Pruebas de Sistema</h3>
+                    <p class="text-sm text-slate-400">Eval&uacute;an el sistema completo y su comportamiento global. Validan requisitos funcionales y no funcionales.</p>
+                </div>
+                <div class="glass p-5 md:pl-16 relative">
+                    <div class="hidden md:flex absolute left-4 top-5 w-8 h-8 rounded-full bg-green-500/20 border border-green-500/30 items-center justify-center text-green-400 font-bold text-sm">4</div>
+                    <span class="tag tag-green mb-2">Nivel 4</span>
+                    <h3 class="font-semibold text-lg">Pruebas de Aceptaci&oacute;n</h3>
+                    <p class="text-sm text-slate-400">Las realiza el usuario final para validar que el sistema cumple con sus expectativas. Incluyen pruebas de usuario y pruebas operativas. Se documentan todos los errores.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROCESO DE 5 ETAPAS -->
+    <section id="proceso" class="animate-in delay-3">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold">Proceso de Testing <span class="text-gradient">(5 Etapas)</span></h2>
+            <p class="text-slate-400 mt-3">Ciclo iterativo que abarca desde la planificaci&oacute;n hasta el cierre documentado.</p>
+        </div>
+        <div class="grid md:grid-cols-5 gap-3 mb-6">
+            <div class="glass p-4 text-center card-hover">
+                <div class="w-10 h-10 rounded-full bg-blue-500/15 border border-blue-500/25 flex items-center justify-center mx-auto mb-3"><span class="text-blue-400 font-bold">1</span></div>
+                <h4 class="font-semibold text-sm">Planificaci&oacute;n</h4>
+                <p class="text-xs text-slate-400 mt-1">Definir alcance, objetivos, criterios de entrada/salida, recursos y cronograma.</p>
+            </div>
+            <div class="glass p-4 text-center card-hover">
+                <div class="w-10 h-10 rounded-full bg-purple-500/15 border border-purple-500/25 flex items-center justify-center mx-auto mb-3"><span class="text-purple-400 font-bold">2</span></div>
+                <h4 class="font-semibold text-sm">An&aacute;lisis</h4>
+                <p class="text-xs text-slate-400 mt-1">Revisar requisitos, identificar condiciones de prueba y funcionalidades cr&iacute;ticas.</p>
+            </div>
+            <div class="glass p-4 text-center card-hover">
+                <div class="w-10 h-10 rounded-full bg-pink-500/15 border border-pink-500/25 flex items-center justify-center mx-auto mb-3"><span class="text-pink-400 font-bold">3</span></div>
+                <h4 class="font-semibold text-sm">Dise&ntilde;o</h4>
+                <p class="text-xs text-slate-400 mt-1">Crear casos de prueba con datos, precondiciones, pasos y resultados esperados.</p>
+            </div>
+            <div class="glass p-4 text-center card-hover">
+                <div class="w-10 h-10 rounded-full bg-amber-500/15 border border-amber-500/25 flex items-center justify-center mx-auto mb-3"><span class="text-amber-400 font-bold">4</span></div>
+                <h4 class="font-semibold text-sm">Ejecuci&oacute;n</h4>
+                <p class="text-xs text-slate-400 mt-1">Correr pruebas, registrar resultados en tiempo real, capturar evidencias y reportar defectos.</p>
+            </div>
+            <div class="glass p-4 text-center card-hover">
+                <div class="w-10 h-10 rounded-full bg-green-500/15 border border-green-500/25 flex items-center justify-center mx-auto mb-3"><span class="text-green-400 font-bold">5</span></div>
+                <h4 class="font-semibold text-sm">Cierre</h4>
+                <p class="text-xs text-slate-400 mt-1">Informe final, acta de aceptaci&oacute;n, lecciones aprendidas y consolidaci&oacute;n de testware.</p>
+            </div>
+        </div>
+        <div class="glass p-6">
+            <h3 class="text-xl font-semibold mb-3">Priorizaci&oacute;n de Pruebas</h3>
+            <p class="text-sm text-slate-400 mb-4">La funcionalidad principal debe probarse primero: verificar que un correo se env&iacute;a correctamente es m&aacute;s cr&iacute;tico que revisar la ortograf&iacute;a de su contenido. Los usuarios necesitan avanzar en sus flujos de trabajo sin interrupciones.</p>
+            <div class="grid md:grid-cols-3 gap-3 text-sm">
+                <div class="glass-light p-3 border-l-2 border-red-500/50"><span class="font-medium text-red-400">Cr&iacute;tica</span><p class="text-xs text-slate-400 mt-1">Funci&oacute;n principal del negocio. Sin esto el sistema no sirve.</p></div>
+                <div class="glass-light p-3 border-l-2 border-amber-500/50"><span class="font-medium text-amber-400">Alta</span><p class="text-xs text-slate-400 mt-1">Funcionalidad importante. Afecta flujos secundarios pero relevantes.</p></div>
+                <div class="glass-light p-3 border-l-2 border-slate-500/50"><span class="font-medium text-slate-400">Baja</span><p class="text-xs text-slate-400 mt-1">Detalles cosm&eacute;ticos, textos, mejoras no urgentes.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CASOS DE PRUEBA -->
+    <section id="casos" class="animate-in delay-4">
+        <div class="text-center mb-12">
+            <span class="tag tag-purple mb-3">Videos 3 y 4</span>
+            <h2 class="text-3xl md:text-4xl font-bold">Dise&ntilde;o y Gesti&oacute;n de <span class="text-gradient">Casos de Prueba</span></h2>
+            <p class="text-slate-400 mt-3">C&oacute;mo estructurar, documentar y ejecutar pruebas efectivas usando herramientas profesionales.</p>
+        </div>
+
+        <div class="comparison-grid mb-6">
+            <div class="glass p-6 card-hover">
+                <div class="flex items-center gap-3 mb-3"><span class="text-2xl">✅</span><h3 class="font-semibold text-lg">Happy Path</h3></div>
+                <p class="text-sm text-slate-400">Casos donde se espera que el sistema funcione sin errores. Validan el flujo ideal: datos correctos, condiciones esperadas, comportamiento normal.</p>
+                <div class="mt-3 text-xs text-slate-500">Ej: Iniciar sesi&oacute;n con credenciales v&aacute;lidas y acceder al dashboard.</div>
+            </div>
+            <div class="glass p-6 card-hover">
+                <div class="flex items-center gap-3 mb-3"><span class="text-2xl">❌</span><h3 class="font-semibold text-lg">Test to Fail</h3></div>
+                <p class="text-sm text-slate-400">Casos dise&ntilde;ados para <strong>provocar errores intencionalmente</strong>: credenciales incorrectas, datos inv&aacute;lidos, campos vac&iacute;os. Esenciales para robustez y seguridad.</p>
+                <div class="mt-3 text-xs text-slate-500">Ej: Iniciar sesi&oacute;n con credenciales incorrectas y verificar mensaje de error controlado.</div>
+            </div>
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Estructura de un Caso de Prueba</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Campo</th><th>Descripci&oacute;n</th></tr></thead>
+                    <tbody>
+                        <tr><td class="font-medium text-blue-400">ID</td><td>Identificador &uacute;nico, se genera autom&aacute;ticamente al cargar en Azure DevOps</td></tr>
+                        <tr><td class="font-medium text-blue-400">T&iacute;tulo</td><td>Nombre &uacute;nico y claro que describa la validaci&oacute;n. Identificaci&oacute;n r&aacute;pida del objetivo</td></tr>
+                        <tr><td class="font-medium text-blue-400">Precondiciones</td><td>Estado inicial necesario: sesi&oacute;n iniciada, datos cargados, configuraci&oacute;n espec&iacute;fica</td></tr>
+                        <tr><td class="font-medium text-blue-400">Pasos</td><td>Secuencia numerada de acciones detalladas y claras que el ejecutor debe seguir</td></tr>
+                        <tr><td class="font-medium text-blue-400">Resultado Esperado</td><td>Comportamiento esperado del sistema tras ejecutar los pasos. Espec&iacute;fico y medible</td></tr>
+                        <tr><td class="font-medium text-blue-400">Postcondiciones</td><td>Estado final del sistema despu&eacute;s de la ejecuci&oacute;n</td></tr>
+                        <tr><td class="font-medium text-blue-400">Prioridad</td><td>Cr&iacute;tica, Alta, Media, Baja</td></tr>
+                        <tr><td class="font-medium text-blue-400">Complejidad</td><td>Esfuerzo estimado para ejecutar la prueba</td></tr>
+                        <tr><td class="font-medium text-blue-400">Tags</td><td>Etiquetas para categorizar: tipo de prueba, m&oacute;dulo, funcionalidad, release</td></tr>
+                        <tr><td class="font-medium text-blue-400">Evidencias</td><td>Screenshots, videos o capturas con fecha y hora que respaldan la ejecuci&oacute;n</td></tr>
+                        <tr><td class="font-medium text-blue-400">Responsables</td><td>Dise&ntilde;ador y ejecutor del caso, para clarificar atribuciones de resultados</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Evidencias de Pruebas</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-green-400 mb-2">Buenas pr&aacute;cticas</h4>
+                    <ul class="space-y-1 text-xs text-slate-300">
+                        <li>• Capturar cada paso del proceso, no solo el resultado final</li>
+                        <li>• Incluir fecha y hora en las capturas para trazabilidad</li>
+                        <li>• En videos, explicar cada acci&oacute;n verbalmente con contexto</li>
+                        <li>• Ser espec&iacute;fico para que los defectos sean replicables</li>
+                    </ul>
+                </div>
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-amber-400 mb-2">Errores a evitar</h4>
+                    <ul class="space-y-1 text-xs text-slate-300">
+                        <li>• Capturar solo la pantalla final sin mostrar el proceso</li>
+                        <li>• Evidencias sin contexto que no permitan replicar el defecto</li>
+                        <li>• No registrar fecha y hora en las capturas</li>
+                        <li>• Documentaci&oacute;n ambigua que genere retrabajos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-6">
+            <h3 class="text-xl font-semibold mb-3">Matriz de Casos de Prueba y Herramientas</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-blue-400 mb-2">Herramientas de gesti&oacute;n</h4>
+                    <ul class="space-y-1 text-xs text-slate-300">
+                        <li>• <strong>Azure DevOps</strong> — Gesti&oacute;n de casos y reportes autom&aacute;ticos</li>
+                        <li>• <strong>Jira</strong> — Organizaci&oacute;n y seguimiento de defectos</li>
+                        <li>• Carga masiva desde Excel, facilitando organizaci&oacute;n</li>
+                        <li>• Los campos azules indican campos obligatorios</li>
+                    </ul>
+                </div>
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-purple-400 mb-2">Ciclos y nomenclatura</h4>
+                    <ul class="space-y-1 text-xs text-slate-300">
+                        <li>• Organizaci&oacute;n en ciclos copiando casos y ajustando datos</li>
+                        <li>• Nomenclatura relacionada al proceso de negocio</li>
+                        <li>• Control detallado del estatus de cada caso</li>
+                        <li>• Fechas clave para planificar retests y correcciones</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GESTIÓN DE DEFECTOS -->
+    <section id="defectos" class="animate-in delay-4">
+        <div class="text-center mb-12">
+            <span class="tag tag-amber mb-3">Video 4</span>
+            <h2 class="text-3xl md:text-4xl font-bold">Gesti&oacute;n de <span class="text-gradient">Defectos</span></h2>
+            <p class="text-slate-400 mt-3">Clasificaci&oacute;n, seguimiento y resoluci&oacute;n de defectos encontrados durante las pruebas.</p>
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Clasificaci&oacute;n por Severidad</h3>
+            <div class="grid md:grid-cols-4 gap-3">
+                <div class="glass-light p-4 text-center border-t-2 border-red-500"><span class="severity sev-critical mb-2 inline-block">Cr&iacute;tica</span><p class="text-xs text-slate-400 mt-2">Fallos que impiden el acceso al sistema o bloquean funcionalidades principales.</p></div>
+                <div class="glass-light p-4 text-center border-t-2 border-amber-500"><span class="severity sev-high mb-2 inline-block">Alta</span><p class="text-xs text-slate-400 mt-2">Funcionalidades importantes afectadas. Existe workaround pero impacta la operaci&oacute;n.</p></div>
+                <div class="glass-light p-4 text-center border-t-2 border-orange-500"><span class="severity sev-medium mb-2 inline-block">Media</span><p class="text-xs text-slate-400 mt-2">Defectos en funcionalidades secundarias con workaround razonable.</p></div>
+                <div class="glass-light p-4 text-center border-t-2 border-slate-500"><span class="severity sev-low mb-2 inline-block">Baja</span><p class="text-xs text-slate-400 mt-2">Problemas cosm&eacute;ticos, errores ortogr&aacute;ficos, mejoras menores.</p></div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-3">Reporte de Defectos</h3>
+                <ul class="space-y-2 text-sm text-slate-300">
+                    <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">•</span> Cada defecto se documenta con: t&iacute;tulo, descripci&oacute;n, pasos para reproducir, severidad, evidencia y fecha de detecci&oacute;n</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">•</span> Se asignan responsables (desarrolladores internos o externos) para dar seguimiento</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">•</span> Los defectos pueden atribuirse a proveedores externos para evaluar su rendimiento</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">•</span> Se analiza la tendencia de defectos abiertos vs cerrados para medir efectividad del proceso</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">•</span> Un 4% de fallos puede ser aceptable, pero los ejecutivos deben tomar decisiones informadas</li>
+                </ul>
+            </div>
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-3">Retest vs Regresi&oacute;n</h3>
+                <div class="space-y-4 text-sm">
+                    <div class="glass-light p-3">
+                        <div class="flex items-center gap-2 mb-1"><span class="w-2 h-2 rounded-full bg-green-400"></span><span class="font-medium">Retest</span></div>
+                        <p class="text-xs text-slate-400 ml-4">Se aplica cuando se corrige un defecto espec&iacute;fico. Verifica que la soluci&oacute;n resuelve el problema. <em>"&iquest;Arreglaste lo que te ped&iacute;?"</em></p>
+                    </div>
+                    <div class="glass-light p-3">
+                        <div class="flex items-center gap-2 mb-1"><span class="w-2 h-2 rounded-full bg-purple-400"></span><span class="font-medium">Regresi&oacute;n</span></div>
+                        <p class="text-xs text-slate-400 ml-4">Revisa todo el flujo funcional tras cambios. Verifica que no hayan introducido defectos en &aacute;reas previamente funcionales. <em>"&iquest;Rompi&oacute; algo m&aacute;s al arreglarlo?"</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-6">
+            <h3 class="text-xl font-semibold mb-3">Reporte Diario y Cierre</h3>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="glass-light p-4"><h4 class="font-medium text-blue-400 mb-2">Reportes diarios</h4><p class="text-xs text-slate-400">El l&iacute;der de pruebas env&iacute;a reportes diarios consolidados con: casos ejecutados, aprobados/fallidos, defectos abiertos, riesgos y bloqueos.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-purple-400 mb-2">Acta de aceptaci&oacute;n</h4><p class="text-xs text-slate-400">Al finalizar se genera un acta con funcionalidades probadas, defectos encontrados, acuerdos y aprobaci&oacute;n para pase a producci&oacute;n.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-green-400 mb-2">Lecciones aprendidas</h4><p class="text-xs text-slate-400">An&aacute;lisis de acciones efectivas e inefectivas para optimizar trabajo futuro, mejorar comunicaci&oacute;n y refinar procesos.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CICLO DE VIDA -->
+    <section id="ciclo-vida" class="animate-in delay-3">
+        <div class="text-center mb-12">
+            <span class="tag tag-green mb-3">Video 2</span>
+            <h2 class="text-3xl md:text-4xl font-bold">Testing en el <span class="text-gradient">Ciclo de Vida</span></h2>
+            <p class="text-slate-400 mt-3">Integraci&oacute;n de las pruebas en diferentes modelos de desarrollo.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="glass p-5 card-hover"><h3 class="font-semibold text-lg mb-2">Modelo en Cascada</h3><p class="text-sm text-slate-400">Enfoque secuencial donde cada fase depende de la anterior. Las pruebas ocurren al final, retrasando la detecci&oacute;n de defectos.</p></div>
+            <div class="glass p-5 card-hover"><h3 class="font-semibold text-lg mb-2">Modelo en V</h3><p class="text-sm text-slate-400">Cada fase de desarrollo tiene una fase de pruebas correspondiente. Integra el testing desde el inicio asociando requisitos con pruebas de aceptaci&oacute;n.</p></div>
+            <div class="glass p-5 card-hover"><h3 class="font-semibold text-lg mb-2">Modelo &Aacute;gil (Scrum/Kanban)</h3><p class="text-sm text-slate-400">Permite entregas parciales y ciclos de pruebas cortos. El testing es continuo y se integra en cada sprint. Favorece respuesta r&aacute;pida a cambios.</p></div>
+            <div class="glass p-5 card-hover"><h3 class="font-semibold text-lg mb-2">Modelo Iterativo</h3><p class="text-sm text-slate-400">Construcci&oacute;n por ciclos con retroalimentaci&oacute;n constante. Cada iteraci&oacute;n produce una versi&oacute;n mejorada con pruebas integradas.</p></div>
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-3">SCRUM y el Rol del Testing</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-300">
+                <div class="glass-light p-4"><h4 class="font-medium text-blue-400 mb-2">Daily (Stand-up diario)</h4><p class="text-xs">Compartir actividades, dependencias y bloqueos. Todos se alinean en responsabilidades. La comunicaci&oacute;n efectiva es fundamental.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-purple-400 mb-2">Sprint Review</h4><p class="text-xs">Demostraci&oacute;n del avance al cliente. El cliente participa validando que el producto cumple expectativas.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-green-400 mb-2">Pruebas exploratorias y de humo</h4><p class="text-xs">Planificarlas espont&aacute;neamente beneficia la validaci&oacute;n antes de la liberaci&oacute;n formal, ahorrando tiempo.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-amber-400 mb-2">Colaboraci&oacute;n tester-desarrollador</h4><p class="text-xs">Fomentar relaci&oacute;n colaborativa reduce fricciones. Compartir informaci&oacute;n sobre pruebas y modificaciones es clave.</p></div>
+            </div>
+        </div>
+
+        <div class="glass p-6">
+            <h3 class="text-xl font-semibold mb-3">Prototipado y Ciclo de Desarrollo</h3>
+            <ol class="space-y-3 text-sm text-slate-300">
+                <li class="flex items-start gap-3"><span class="step-number">1</span><div><strong class="text-white">Prototipo</strong> — Visi&oacute;n inicial del sistema. Ayuda a identificar necesidades del negocio y ajustar requerimientos antes de codificar.</div></li>
+                <li class="flex items-start gap-3"><span class="step-number">2</span><div><strong class="text-white">Pruebas Unitarias</strong> — Desarrolladores verifican componentes individuales para garantizar funcionamiento correcto.</div></li>
+                <li class="flex items-start gap-3"><span class="step-number">3</span><div><strong class="text-white">Pruebas de Aceptaci&oacute;n</strong> — &uacute;ltimo paso para validar que el sistema cumple expectativas del usuario antes del despliegue.</div></li>
+                <li class="flex items-start gap-3"><span class="step-number">4</span><div><strong class="text-white">Cambios y demos</strong> — Los cambios solicitados durante demos afectan plazos y documentaci&oacute;n. Gestionarlos es clave para no comprometer calidad.</div></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- HERRAMIENTAS Y PERFIL -->
+    <section id="herramientas" class="animate-in delay-5">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold">Herramientas y <span class="text-gradient">Perfil Profesional</span></h2>
+            <p class="text-slate-400 mt-3">Tecnolog&iacute;as clave y habilidades que definen a un buen ingeniero de pruebas.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-4">Herramientas Principales</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="glass-light p-3 flex items-center gap-3"><span class="text-blue-400 font-bold">AZ</span><div><strong class="text-white">Azure DevOps</strong><p class="text-xs text-slate-400">Gesti&oacute;n de casos de prueba, reportes autom&aacute;ticos de resultados, carga masiva desde Excel y seguimiento de ciclos.</p></div></div>
+                    <div class="glass-light p-3 flex items-center gap-3"><span class="text-blue-400 font-bold">JR</span><div><strong class="text-white">Jira</strong><p class="text-xs text-slate-400">Estructuraci&oacute;n y almacenamiento de casos de prueba, gesti&oacute;n de defectos y seguimiento de proyectos &aacute;giles.</p></div></div>
+                    <div class="glass-light p-3 flex items-center gap-3"><span class="text-blue-400 font-bold">XL</span><div><strong class="text-white">Excel / Matrices</strong><p class="text-xs text-slate-400">Plantillas para matrices de prueba y carga de datos a herramientas. Los campos azules indican obligatoriedad.</p></div></div>
+                </div>
+            </div>
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-4">Perfil del Ingeniero de Pruebas</h3>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="glass-light p-3"><span class="text-blue-400 text-lg">🔍</span><p class="text-xs mt-1 font-medium">Curiosidad</p><p class="text-xs text-slate-500">"&iquest;Qu&eacute; pasa si...?"</p></div>
+                    <div class="glass-light p-3"><span class="text-purple-400 text-lg">🎯</span><p class="text-xs mt-1 font-medium">Atenci&oacute;n al detalle</p><p class="text-xs text-slate-500">Captar lo que otros pasan por alto</p></div>
+                    <div class="glass-light p-3"><span class="text-green-400 text-lg">💬</span><p class="text-xs mt-1 font-medium">Comunicaci&oacute;n</p><p class="text-xs text-slate-500">Reportar defectos clara y asertivamente</p></div>
+                    <div class="glass-light p-3"><span class="text-amber-400 text-lg">📝</span><p class="text-xs mt-1 font-medium">Documentaci&oacute;n</p><p class="text-xs text-slate-500">Registrar todo para auditor&iacute;as</p></div>
+                    <div class="glass-light p-3"><span class="text-pink-400 text-lg">🤝</span><p class="text-xs mt-1 font-medium">Colaboraci&oacute;n</p><p class="text-xs text-slate-500">Trabajar con desarrollo, no contra ellos</p></div>
+                    <div class="glass-light p-3"><span class="text-cyan-400 text-lg">⚖️</span><p class="text-xs mt-1 font-medium">&Eacute;tica profesional</p><p class="text-xs text-slate-500">Integridad y transparencia</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-6">
+            <h3 class="text-xl font-semibold mb-4">Metodolog&iacute;as de Gesti&oacute;n Aplicables</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-300">
+                <div class="glass-light p-4"><h4 class="font-medium text-blue-400">ITIL</h4><p class="text-xs mt-1">Framework de mejores pr&aacute;cticas para gesti&oacute;n de servicios TI. Ayuda a estructurar procesos de cambios, incidencias y liberaciones.</p></div>
+                <div class="glass-light p-4"><h4 class="font-medium text-green-400">SCRUM</h4><p class="text-xs mt-1">Marco &aacute;gil que organiza el trabajo en sprints. El testing se integra con dailies, sprint reviews y retrospectivas que mejoran continuamente la calidad.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VALIDACIÓN TÉCNICA Y SEGURIDAD (Video 5) -->
+    <section id="validacion" class="animate-in delay-5">
+        <div class="text-center mb-12">
+            <span class="tag tag-amber mb-3">Video 5</span>
+            <h2 class="text-3xl md:text-4xl font-bold">Validación Técnica y <span class="text-gradient">Seguridad</span></h2>
+            <p class="text-slate-400 mt-3">Técnicas avanzadas, validación de campos y ciberseguridad en el proceso de testing.</p>
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Validación de Campos y Carga de Archivos</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-300">
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-amber-400 mb-2">Validación de Campos</h4>
+                    <ul class="space-y-1 text-xs">
+                        <li>• Verificar limitaciones de caracteres en campos de texto</li>
+                        <li>• Probar formatos específicos (RFC, correo, teléfono)</li>
+                        <li>• Validar campos obligatorios vs opcionales</li>
+                        <li>• Probar campos vacíos, nulos y con espacios</li>
+                    </ul>
+                </div>
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-green-400 mb-2">Carga de Archivos</h4>
+                    <ul class="space-y-1 text-xs">
+                        <li>• Validar tipos de archivo permitidos y tamaños máximos</li>
+                        <li>• Probar límites del sistema (archivos muy grandes o vacíos)</li>
+                        <li>• Verificar que no haya pérdida de integridad en la base de datos</li>
+                        <li>• Probar rendimiento al cargar múltiples archivos simultáneamente</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-3">Validación de Seguridad con OWASP</h3>
+                <p class="text-sm text-slate-400 mb-3">El OWASP Top 10 es una herramienta clave para validar vulnerabilidades en aplicaciones web:</p>
+                <ul class="space-y-2 text-sm text-slate-300">
+                    <li class="flex items-start gap-2"><span class="text-red-400 mt-0.5">•</span> Validación de permisos de acceso: el usuario solo debe acceder a lo que le corresponde</li>
+                    <li class="flex items-start gap-2"><span class="text-red-400 mt-0.5">•</span> Prevención de inyecciones SQL y XSS</li>
+                    <li class="flex items-start gap-2"><span class="text-red-400 mt-0.5">•</span> Gestión segura de sesiones y autenticación</li>
+                    <li class="flex items-start gap-2"><span class="text-red-400 mt-0.5">•</span> Configuración de seguridad en servidores</li>
+                    <li class="flex items-start gap-2"><span class="text-red-400 mt-0.5">•</span> Exposición de datos sensibles</li>
+                </ul>
+                <p class="text-xs text-slate-500 mt-3">Explorar la página de OWASP (owasp.org) proporciona recursos valiosos para proyectos de ciberseguridad.</p>
+            </div>
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-3">Herramientas del Navegador y Errores HTTP</h3>
+                <p class="text-sm text-slate-400 mb-3">Conocer herramientas de desarrollador y c&oacute;digos de error es esencial:</p>
+                <div class="space-y-3 text-sm">
+                    <div class="glass-light p-3">
+                        <h4 class="font-medium text-blue-400 mb-1">Inspector de elementos (F12)</h4>
+                        <p class="text-xs text-slate-400">Revisar elementos HTML, CSS y errores de carga. &Uacute;til para identificar logos rotos, estilos incorrectos o recursos que no se cargan.</p>
+                    </div>
+                    <div class="glass-light p-3">
+                        <h4 class="font-medium text-purple-400 mb-1">C&oacute;digos de error HTTP comunes</h4>
+                        <ul class="text-xs text-slate-400 space-y-1 mt-1">
+                            <li><code>400</code> &mdash; Bad Request: la p&aacute;gina puede verse bien pero algunos elementos no se cargan</li>
+                            <li><code>401/403</code> &mdash; Errores de autenticaci&oacute;n/autorizaci&oacute;n</li>
+                            <li><code>404</code> &mdash; Recurso no encontrado</li>
+                            <li><code>500</code> &mdash; Error interno del servidor</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Entorno de Pruebas y Escenarios</h3>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-blue-400 mb-2">Entornos de prueba</h4>
+                    <p class="text-xs text-slate-400">Especificar si las pruebas se realizan en web, aplicaciones m&oacute;viles o sistemas h&iacute;bridos. Cada entorno requiere consideraciones distintas.</p>
+                </div>
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-purple-400 mb-2">Escenarios de prueba</h4>
+                    <p class="text-xs text-slate-400">Describen flujos completos de negocio. Ayudan a entender el contexto y los requisitos necesarios para ejecutar cada caso de prueba.</p>
+                </div>
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-green-400 mb-2">Colaboraci&oacute;n inter-&aacute;rea</h4>
+                    <p class="text-xs text-slate-400">&Aacute;rea de desarrollo debe colaborar con &aacute;reas administrativas y de negocio para alinear el sistema con las necesidades reales de la empresa.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-6">
+            <h3 class="text-xl font-semibold mb-3">Conocimientos T&eacute;cnicos del Tester</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-green-400 mb-2">Habilidades t&eacute;cnicas</h4>
+                    <ul class="space-y-1 text-xs text-slate-300">
+                        <li>• Familiaridad con <strong>CSS y HTML</strong> para inspeccionar problemas en interfaces web</li>
+                        <li>• Conocimiento de <strong>herramientas de desarrollador</strong> del navegador</li>
+                        <li>• Comprensi&oacute;n de <strong>c&oacute;digos de error HTTP</strong> y su significado</li>
+                        <li>• Uso de <strong>OWASP Top 10</strong> para validar vulnerabilidades de seguridad</li>
+                    </ul>
+                </div>
+                <div class="glass-light p-4">
+                    <h4 class="font-medium text-amber-400 mb-2">Experiencia pr&aacute;ctica</h4>
+                    <ul class="space-y-1 text-xs text-slate-300">
+                        <li>• Muchos testers se enfocan en funcionalidades y descuidan aspectos t&eacute;cnicos como el dise&ntilde;o preliminar</li>
+                        <li>• La experiencia permite detectar vulnerabilidades que otros pasan por alto</li>
+                        <li>• Cada proyecto aporta oportunidades para aprender y mejorar habilidades t&eacute;cnicas</li>
+                        <li>• La comunicaci&oacute;n con el cliente es clave para justificar la cantidad de validaciones necesarias</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VALIDACIÓN DE FORMULARIOS (Video 6) -->
+    <section id="formularios" class="animate-in delay-5">
+        <div class="text-center mb-12">
+            <span class="tag tag-pink mb-3">Video 6</span>
+            <h2 class="text-3xl md:text-4xl font-bold">Validación de Formularios y <span class="text-gradient">Casos Prácticos</span></h2>
+            <p class="text-slate-400 mt-3">Revisión práctica de casos de prueba para formularios de inicio de sesión y buenas prácticas de documentación.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-4">Validaciones Clave en Formularios</h3>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Formato de correo:</strong> Validar estructura correcta (usuario@dominio.com) vs formato incorrecto (usuario@.com).</span></li>
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Longitud máxima:</strong> El correo no debe exceder los 100 caracteres. Probar casos límite.</span></li>
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Requisitos de contraseña:</strong> Al menos una minúscula, mayúscula, número y carácter especial.</span></li>
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Correo no existente vs formato incorrecto:</strong> Son dos casos de prueba distintos. No mezclarlos en una misma validación.</span></li>
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Campo vacío:</strong> Debe ser un caso aparte con mensaje de error específico, no usar como dato de entrada genérico.</span></li>
+                </ul>
+            </div>
+            <div class="glass p-6">
+                <h3 class="font-semibold text-lg mb-4">Tipos de Usuario en Login</h3>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Correo electrónico:</strong> Formato estándar de inicio de sesión.</span></li>
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Número de empleado:</strong> Identificador numérico interno de la organización.</span></li>
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Código personalizado:</strong> Username único definido por el usuario o la empresa.</span></li>
+                    <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span><strong class="text-white">Usuario final vs empresa:</strong> Distinguir permisos y alcances según el tipo de usuario.</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="glass p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Buenas Prácticas para Casos de Prueba</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <h4 class="font-semibold text-green-400 mb-2">Hacer</h4>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>Usar nombres únicos y descriptivos para cada caso</li>
+                        <li>Incluir una columna de descripción con el objetivo de la prueba</li>
+                        <li>Documentar cada paso con detalles (clic, scroll, espera)</li>
+                        <li>Separar validaciones distintas en casos diferentes</li>
+                        <li>Indicar el entorno de prueba (web, móvil, navegador)</li>
+                        <li>Agregar el mensaje de error esperado en resultados</li>
+                        <li>Revisar ortografía y formato del documento</li>
+                    </ul>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <h4 class="font-semibold text-red-400 mb-2">Evitar</h4>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>Mezclar validaciones en un solo caso de prueba</li>
+                        <li>Usar correos vacíos como datos de entrada válidos</li>
+                        <li>Omitir la descripción del caso de prueba</li>
+                        <li>Dejar pasos ambiguos o poco detallados</li>
+                        <li>Ignorar la diferencia entre "formato incorrecto" y "no existente"</li>
+                        <li>Errores ortográficos que afectan la calidad del documento</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-6">
+            <h3 class="text-xl font-semibold mb-4">Lecciones Clave del Video 6</h3>
+            <ul class="space-y-3 text-sm text-slate-300">
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span>La <strong class="text-white">claridad en la documentación</strong> permite que otros repliquen los pasos sin confusión.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span>Los <strong class="text-white">identificadores únicos</strong> en cada caso evitan duplicaciones y facilitan el seguimiento.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span>La <strong class="text-white">ortografía y presentación</strong> del documento reflejan la calidad del trabajo del equipo de pruebas.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span>Incluir <strong class="text-white">columnas adicionales</strong> (éxito/fallo) en los reportes ayuda a visualizar el estado de cada validación.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span>Los casos detallados son la base para la <strong class="text-white">automatización</strong> de pruebas.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">▸</span> <span>Es clave <strong class="text-white">preguntar y aclarar dudas</strong> sobre los requerimientos antes de ejecutar las pruebas.</span></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ÉTICA PROFESIONAL -->
+    <section id="etica" class="animate-in delay-5">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold"><span class="text-gradient">&Eacute;tica</span> Profesional</h2>
+            <p class="text-slate-400 mt-3">Principios que todo ingeniero de pruebas debe mantener para construir una carrera s&oacute;lida.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4">
+            <div class="glass p-5 card-hover text-center"><span class="text-3xl">⚖️</span><h4 class="font-semibold mt-2 mb-2">Integridad</h4><p class="text-xs text-slate-400">No eliminar casos de prueba para cumplir m&eacute;tricas. Mantener transparencia en los procesos es fundamental para la confianza del equipo.</p></div>
+            <div class="glass p-5 card-hover text-center"><span class="text-3xl">💼</span><h4 class="font-semibold mt-2 mb-2">Responsabilidad remota</h4><p class="text-xs text-slate-400">El trabajo remoto trae tentaciones de no cumplir responsabilidades. Ser consciente de las expectativas laborales es esencial para actuar &eacute;ticamente.</p></div>
+            <div class="glass p-5 card-hover text-center"><span class="text-3xl">🧠</span><h4 class="font-semibold mt-2 mb-2">Actitud profesional</h4><p class="text-xs text-slate-400">No tomar cr&iacute;ticas de manera personal. Mantener una actitud profesional facilita un ambiente productivo para todos.</p></div>
+        </div>
+    </section>
+
+    <!-- VIDEOS -->
+    <section id="videos" class="animate-in delay-5">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold">Sesiones del Taller</h2>
+            <p class="text-slate-400 mt-3">Accede a las grabaciones completas impartidas por Itel Rodr&iacute;guez L&oacute;pez.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-5">
+            <a href="https://www.youtube.com/watch?v=82A7NKUHyVQ&list=PLpyE8IMB-tbld7Ed5BocuEKkXPASYdajR&index=2&t=7450s" target="_blank" class="glass p-6 card-hover block video-card">
+                <div class="flex items-start gap-4">
+                    <div class="play-icon flex-shrink-0"><span class="text-blue-400 text-2xl">▶</span></div>
+                    <div>
+                        <span class="tag tag-blue mb-2 inline-block">Video 1</span>
+                        <h3 class="font-semibold text-lg">Fundamentos del Testing</h3>
+                        <p class="text-sm text-slate-400 mt-1">Conceptos b&aacute;sicos, tipos de pruebas, importancia del testing, y los 7 principios ISTQB.</p>
+                    </div>
+                </div>
+            </a>
+            <a href="https://www.youtube.com/watch?v=ywWPkoxwoFs&list=PLpyE8IMB-tbld7Ed5BocuEKkXPASYdajR&index=3&t=253s" target="_blank" class="glass p-6 card-hover block video-card">
+                <div class="flex items-start gap-4">
+                    <div class="play-icon flex-shrink-0"><span class="text-blue-400 text-2xl">▶</span></div>
+                    <div>
+                        <span class="tag tag-purple mb-2 inline-block">Video 2</span>
+                        <h3 class="font-semibold text-lg">Testing en el Ciclo de Vida</h3>
+                        <p class="text-sm text-slate-400 mt-1">Modelos de desarrollo (cascada, V, &aacute;gil, iterativo), retest vs regresi&oacute;n, pruebas est&aacute;ticas.</p>
+                    </div>
+                </div>
+            </a>
+            <a href="https://www.youtube.com/watch?v=OC-IZYQb-pg&list=PLpyE8IMB-tbld7Ed5BocuEKkXPASYdajR&index=4" target="_blank" class="glass p-6 card-hover block video-card">
+                <div class="flex items-start gap-4">
+                    <div class="play-icon flex-shrink-0"><span class="text-blue-400 text-2xl">▶</span></div>
+                    <div>
+                        <span class="tag tag-pink mb-2 inline-block">Video 3</span>
+                        <h3 class="font-semibold text-lg">Dise&ntilde;o de Casos de Prueba</h3>
+                        <p class="text-sm text-slate-400 mt-1">Happy Path, Test to Fail, estructura de casos, matriz de pruebas, Azure DevOps, evidencias.</p>
+                    </div>
+                </div>
+            </a>
+            <a href="https://www.youtube.com/watch?v=cxYRTop3Al4&list=PLpyE8IMB-tbld7Ed5BocuEKkXPASYdajR&index=5" target="_blank" class="glass p-6 card-hover block video-card">
+                <div class="flex items-start gap-4">
+                    <div class="play-icon flex-shrink-0"><span class="text-blue-400 text-2xl">▶</span></div>
+                    <div>
+                        <span class="tag tag-green mb-2 inline-block">Video 4</span>
+                        <h3 class="font-semibold text-lg">Gesti&oacute;n de Defectos y Cierre</h3>
+                        <p class="text-sm text-slate-400 mt-1">Clasificaci&oacute;n por severidad, reporte de defectos, acta de aceptaci&oacute;n, lecciones aprendidas, &eacute;tica profesional.</p>
+                    </div>
+                </div>
+            </a>
+            <a href="https://www.youtube.com/watch?v=LNSV3kpP1iQ&list=PLpyE8IMB-tbld7Ed5BocuEKkXPASYdajR&index=5" target="_blank" class="glass p-6 card-hover block video-card">
+                <div class="flex items-start gap-4">
+                    <div class="play-icon flex-shrink-0"><span class="text-blue-400 text-2xl">▶</span></div>
+                    <div>
+                        <span class="tag tag-amber mb-2 inline-block">Video 5</span>
+                        <h3 class="font-semibold text-lg">Matriz de Pruebas y Validación Técnica</h3>
+                        <p class="text-sm text-slate-400 mt-1">Validación de campos, OWASP, herramientas del navegador, entorno de pruebas, carga de archivos y ciberseguridad.</p>
+                    </div>
+                </div>
+            </a>
+            <a href="https://www.youtube.com/watch?v=xD7Zt0jYUb0&list=PLpyE8IMB-tbld7Ed5BocuEKkXPASYdajR&index=6" target="_blank" class="glass p-6 card-hover block video-card">
+                <div class="flex items-start gap-4">
+                    <div class="play-icon flex-shrink-0"><span class="text-blue-400 text-2xl">▶</span></div>
+                    <div>
+                        <span class="tag tag-pink mb-2 inline-block">Video 6</span>
+                        <h3 class="font-semibold text-lg">Validación de Formularios y Casos Prácticos</h3>
+                        <p class="text-sm text-slate-400 mt-1">Validación de formularios de login, campos obligatorios, buenas prácticas de documentación, identificación de casos y revisión de evidencias.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<footer class="border-t border-white/5 py-10 px-6 text-center">
+    <p class="text-slate-500 text-sm">Taller de Testing de Software &middot; HITS &middot; Impartido por <strong class="text-slate-400">Itel Rodr&iacute;guez L&oacute;pez</strong></p>
+    <p class="text-slate-600 text-xs mt-2">Apuntes recopilados de las 6 sesiones del taller &mdash; 2026</p>
+</footer>
+
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+</script></body>
+</html>
